@@ -54,6 +54,20 @@ padding-bottom: 1%;
     justify-content: center;
     align-items: center;
 }
+.convert-disabled{
+    background-color: #373434;
+    border-radius: 20px;
+    padding: 8px;
+    font-weight: 600;
+    font-size: 20px;
+    color:white;
+    width: 150px;
+    height:45px;
+    box-shadow: #390f0f;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .convert-button-block{
     visibility:hidden;
     background-color: #390f0f;
