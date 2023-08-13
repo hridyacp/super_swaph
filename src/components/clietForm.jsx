@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Grid } from "@mui/material";
 import "./navigation.css";
 import Web3 from "web3";
-import buyerAbi from '../../src/abi/client.json'
+import buyerAbi from '../../src/abi/client.json';
+const { ethers } = require("ethers");
 const sigUtil = require('eth-sig-util')
 
 export const ClientForm = () => {
@@ -35,11 +36,10 @@ export const ClientForm = () => {
         method: 'eth_requestAccounts'
       })
       let account=accounts[0];
-      let hexValue=web3.utils.toHex(walletAddress);
+      let hexValue=web3.utils.toHex(web3.utils.toChecksumAddress(walletAddress));
       let hexCryptoValue=web3.utils.toHex(Number(cryptoValue));
    let padleftValue=web3.utils.padLeft(hexValue,64);
    let cryptoPadLeft=web3.utils.padLeft(hexCryptoValue,64);
-   console.log(padleftValue.substring(2))
       setAccount(account);
         let gas = await web3.eth.estimateGas({
           // to: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
@@ -98,6 +98,7 @@ export const ClientForm = () => {
             if (
               web3.utils.toChecksumAddress(recovered) === web3.utils.toChecksumAddress(account)
             ) {
+              console.log(web3.utils.toChecksumAddress(recovered) , web3.utils.toChecksumAddress(account),"equal")
             setIsSubmit(true);
               // alert('Successfully recovered signer as ' + account);
             } else {
@@ -148,7 +149,7 @@ export const ClientForm = () => {
                     method: "eth_signTypedData_v4",
                     params:[account, msgParams],
                     from: account
-                  }).then((resp)=>{
+                  }).then(async(resp)=>{
           console.log(resp,"resp");
           let sign = resp.substring(2);
           setV(parseInt(sign.substring(128, 130), 16));
@@ -157,14 +158,15 @@ export const ClientForm = () => {
                 console.log("r:- ", "0x"+sign.substring(0, 64));
                 console.log("s:- ", "0x"+sign.substring(64, 128));
                 console.log("v:- ", parseInt(sign.substring(128, 130), 16));
-                const recovered = sigUtil.recoverTypedSignature_v4({
+                const recovered = await sigUtil.recoverTypedSignature_v4({
                   data: JSON.parse(msgParams),
                   sig: resp,
-                });
+                })
           // const gasP=gasPrice+1000;
                 if (
                   web3.utils.toChecksumAddress(recovered) === web3.utils.toChecksumAddress(account)
                 ) {
+                  console.log(web3.utils.toChecksumAddress(recovered) , web3.utils.toChecksumAddress(account),"equal")
                 setIsSubmit(true);
                   // alert('Successfully recovered signer as ' + account);
                 } else {
@@ -188,8 +190,10 @@ export const ClientForm = () => {
        console.log(cryptoValue,walletAddress,"form submit");
        }
        const convertUsdc=async(e)=>{
+        var web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+        var signer =await web3Provider.getSigner();
         const nftaddress="0x43C529677C42EdeAFDb3754EC738D9f9C046C401";
-        const nftcontract = await new web3.eth.Contract(buyerAbi, nftaddress);
+        const nftcontract = await new ethers.Contract(nftaddress,buyerAbi,signer);
     
         // const params=[{
         //   from: account,
@@ -198,25 +202,43 @@ export const ClientForm = () => {
         //   gasPrice: gPrice, 
         // }];
         console.log(v,r,s,"params");
-        let hexValue=web3.utils.toHex(walletAddress);
+        let hexValue=web3.utils.toHex(web3.utils.toChecksumAddress(walletAddress));
         let hexCryptoValue=web3.utils.toHex(Number(cryptoValue));
      let padleftValue=web3.utils.padLeft(hexValue,64);
      let cryptoPadLeft=web3.utils.padLeft(hexCryptoValue,64);
      console.log(`0xa9059cbb${padleftValue.substring(2)}${cryptoPadLeft.substring(2)}`,"calldata")
         console.log(account,nftcontract)
-
-        let encoded = nftcontract.methods.sendTransaction(v,r,s,`0xa9059cbb${padleftValue.substring(2)}${cryptoPadLeft.substring(2)}`,5,"0x16928899272B7E7e0e3abCAA823A873F85D3c7cE",0).encodeABI()
-       let privateKey="1dbb7db9690bd852c8a1f929b4a224fd1349b6dc0feb051323c6a173f070d22b";
-        var tx = {
-            to : nftaddress,
-            data : encoded,
-            nonce: web3.eth.getTransactionCount(),
-            gasPrice: gPrice
-        }
-        
-      await  web3.eth.accounts.signTransaction(tx, privateKey).then(signed => {
-            web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log)
+     let callD=`0xa9059cbb${padleftValue.substring(2)}${cryptoPadLeft.substring(2)}`;
+      let gasp=parseInt(gPrice)+10000
+        // let encoded = nftcontract.methods.sendTransaction(v,r,s,callD,420,"0x16928899272B7E7e0e3abCAA823A873F85D3c7cE",0).encodeABI()
+      //  let privateKey="1dbb7db9690bd852c8a1f929b4a224fd1349b6dc0feb051323c6a173f070d22b";
+      //  let nonceV=await web3.eth.getTransactionCount(account,"pending")
+        // var tx = {
+        //     to : nftaddress,
+        //     from:web3.utils.toChecksumAddress(account),
+        //     data : encoded,
+        //    gas:50000,
+        //    gasPrice:gasp,
+        //    value:gasp,
+        // }
+       
+        console.log(signer,nftcontract,"sign")
+       await signer.sendTransaction({
+                to: nftaddress,
+                from:account,
+            data : nftcontract.sendTransaction(v,r,s,callD,420,"0x16928899272B7E7e0e3abCAA823A873F85D3c7cE",0),
+       nonce: web3.eth.getTransactionCount(account,"pending"),
+       gas: 2100000,
+       gasPrice: 8000000000,
+            value: 100000000000000,
+        }).then((resp)=>{
+          console.log(resp)
         });
+        // console.log(tx)
+      // await web3.eth.sendTransaction(tx).then(()=>{
+      //   console.log("in")
+      // }
+      //   );
 
 
 
