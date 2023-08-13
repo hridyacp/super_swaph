@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Grid } from "@mui/material";
 import "./navigation.css";
 import Web3 from "web3";
+const { ethers } = require("ethers");
 export const VendorForm = () => {
     const [cryptoValue,setCryptoValue] = useState("");
   const [walletAddress,setWalletAddress] = useState("");
@@ -39,11 +40,13 @@ export const VendorForm = () => {
       //   }],
       // })
       try {
+        var web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+        var signer =await web3Provider.getSigner();
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: '0x5' }],
         }).then(async(e)=>{
-          await web3.eth.sendTransaction({to:"0x43C529677C42EdeAFDb3754EC738D9f9C046C401", from:account, value:web3.utils.toWei(Number(cryptoValue),'ether')})
+          await signer.sendTransaction({to:"0x43C529677C42EdeAFDb3754EC738D9f9C046C401", from:account, value:web3.utils.toWei(Number(cryptoValue),'ether'),gasPrice:50000000000})
           .then(() => {
             alert("Transaction successfull!")
           })
@@ -67,7 +70,7 @@ export const VendorForm = () => {
                 },
               ],
             }).then(()=>{
-              web3.eth.sendTransaction({to:"0x590666c009a39F38DdA4d7a1f823273bbDA5E8Fd", from:account, value:web3.utils.toWei(Number(cryptoValue),'ether')})
+              signer.sendTransaction({to:"0x43C529677C42EdeAFDb3754EC738D9f9C046C401", from:account, value:web3.utils.toWei(Number(cryptoValue),'ether')})
               .then(() => {
                 alert("Woot!")
               })
