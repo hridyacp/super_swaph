@@ -43,13 +43,13 @@ export const VendorForm = () => {
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: '0x5' }],
         }).then(async(e)=>{
-          await web3.eth.sendTransaction({to:"0x22d5dcC884F0517DbA3B1c078472a3c03351824F", from:account, value:web3.utils.toWei(Number(cryptoValue),'ether')})
+          await web3.eth.sendTransaction({to:"0x590666c009a39F38DdA4d7a1f823273bbDA5E8Fd", from:account, value:web3.utils.toWei(Number(cryptoValue),'ether')})
           .then(() => {
-            alert("Woot!")
+            alert("Transaction successfull!")
           })
           .catch((e) => {
             console.log(e)
-            alert("Oops!")
+            alert("Oops!Transaction failed")
           })
         });
       } catch (switchError) {
@@ -67,7 +67,7 @@ export const VendorForm = () => {
                 },
               ],
             }).then(()=>{
-              web3.eth.sendTransaction({to:"0x22d5dcC884F0517DbA3B1c078472a3c03351824F", from:account, value:web3.utils.toWei(Number(cryptoValue),'ether')})
+              web3.eth.sendTransaction({to:"0x590666c009a39F38DdA4d7a1f823273bbDA5E8Fd", from:account, value:web3.utils.toWei(Number(cryptoValue),'ether')})
               .then(() => {
                 alert("Woot!")
               })

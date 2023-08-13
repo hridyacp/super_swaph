@@ -118,9 +118,9 @@
 				"type": "bytes"
 			},
 			{
-				"internalType": "uint8",
+				"internalType": "uint32",
 				"name": "destDomain",
-				"type": "uint8"
+				"type": "uint32"
 			},
 			{
 				"internalType": "address",
