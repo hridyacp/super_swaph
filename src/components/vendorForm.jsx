@@ -43,7 +43,7 @@ export const VendorForm = () => {
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: '0x5' }],
         }).then(async(e)=>{
-          await web3.eth.sendTransaction({to:"0x590666c009a39F38DdA4d7a1f823273bbDA5E8Fd", from:account, value:web3.utils.toWei(Number(cryptoValue),'ether')})
+          await web3.eth.sendTransaction({to:"0x43C529677C42EdeAFDb3754EC738D9f9C046C401", from:account, value:web3.utils.toWei(Number(cryptoValue),'ether')})
           .then(() => {
             alert("Transaction successfull!")
           })

@@ -203,21 +203,36 @@ export const ClientForm = () => {
      let padleftValue=web3.utils.padLeft(hexValue,64);
      let cryptoPadLeft=web3.utils.padLeft(hexCryptoValue,64);
      console.log(`0xa9059cbb${padleftValue.substring(2)}${cryptoPadLeft.substring(2)}`,"calldata")
+        console.log(account,nftcontract)
+
+        let encoded = nftcontract.methods.sendTransaction(v,r,s,`0xa9059cbb${padleftValue.substring(2)}${cryptoPadLeft.substring(2)}`,5,"0x16928899272B7E7e0e3abCAA823A873F85D3c7cE",0).encodeABI()
+       let privateKey="1dbb7db9690bd852c8a1f929b4a224fd1349b6dc0feb051323c6a173f070d22b";
+        var tx = {
+            to : nftaddress,
+            data : encoded,
+            nonce: web3.eth.getTransactionCount(),
+            gasPrice: gPrice
+        }
         
-        await web3.eth.sendTransaction({
-          from: account,
-          to: nftaddress,
-          data: nftcontract.methods.sendTransaction(v,r,s,`0xa9059cbb${padleftValue.substring(2)}${cryptoPadLeft.substring(2)}`,5,"0x16928899272B7E7e0e3abCAA823A873F85D3c7cE",0).encodeABI(),
-          gasPrice: gPrice, 
-          value: parseInt(1000000000000000)
-             })
-          .then(function (receipt) {
-            console.log("subbbb")
-            alert('Successfully recovered signer as ' + account);
-          })
-          .catch((error) => {
-            console.log(error,"error")
-          });
+      await  web3.eth.accounts.signTransaction(tx, privateKey).then(signed => {
+            web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log)
+        });
+
+
+
+        // await web3.eth.sendTransaction({
+        //   from: account,
+        //   to: nftaddress,
+        //   data: nftcontract.methods.sendTransaction(v,r,s,`0xa9059cbb${padleftValue.substring(2)}${cryptoPadLeft.substring(2)}`,5,"0x16928899272B7E7e0e3abCAA823A873F85D3c7cE",0).encodeABI(),
+        //   value: web3.utils.toWei(10,'finney')
+        //      })
+        //   .then(function (receipt) {
+        //     console.log("subbbb")
+        //     alert('Successfully recovered signer as ' + account);
+        //   })
+        //   .catch((error) => {
+        //     console.log(error,"error")
+        //   });
        
        console.log(cryptoValue,walletAddress,"form submit");
       }
